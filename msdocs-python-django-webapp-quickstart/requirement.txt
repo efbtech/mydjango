@@ -1,0 +1,6 @@
+Django
+whitenoise
+pyodbc
+xlwt
+xlutils
+xlrd

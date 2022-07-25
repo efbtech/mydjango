@@ -1,0 +1,63 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+  <!-- -------------------------------------------------------------- -->
+  <!-- Start Page Content -->
+  <!-- -------------------------------------------------------------- -->
+    <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Backend Users</h4>
+          <h6 class="card-subtitle lh-base">List of all backend users</h6>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table customize-table table-dark table-striped mb-0 v-middle">
+                <thead class="bg-dark">
+                    <tr>
+                      <th>Username</th>
+                      <th>Email Address</th>
+                      <th>Status</th>
+                      <th>Last Login</th>
+                      <th>Joined at</th>
+                      <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in users%}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                            <span class="ms-3 fw-normal">{{ obj.username }}</span>
+                        </div>
+                      </td>
+                      <td>{{ obj.email }}</td>
+                      <td>
+                        {% if obj.is_active %} 
+                            <span class="badge bg-light-success text-success fw-normal">Active</span>
+                        {% else %}
+                            <span class="badge bg-light-danger text-danger fw-normal">Inactive</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ obj.last_login }}</td>
+                      <td>{{ obj.date_joined }}</td>
+                      <td>
+                        <div class="dropdown dropstart">
+                          <a href="#" class="text-muted" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i data-feather="more-horizontal" class="feather-sm"></i>
+                          </a>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#">Edit</a></li>
+                            <li><a class="dropdown-item" href="#">Delete</a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    
+                </tbody>
+            </table>
+        </div>
+  </div>
+</div>
+{% endblock content %}

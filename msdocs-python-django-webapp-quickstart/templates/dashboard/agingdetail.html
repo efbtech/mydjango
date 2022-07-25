@@ -1,0 +1,376 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+  <!-- -------------------------------------------------------------- -->
+  <!-- Start Page Content -->
+  <!-- -------------------------------------------------------------- -->
+<div class="row">  
+  <div class="col-sm-3 p-1">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Debtor List</h4>
+        <input type="radio" id="idname" name="debtorlist" value="1" checked>
+        <label for="html">ID & Name</label> | 
+        <input type="radio" id="nameid" name="debtorlist" value="2">
+        <label for="css">Name & ID</label> <br>
+        <select id="idn" class="form-control">
+          <option value="">--Select--</option>
+          {% for mb in members%}
+            <option value="{{ mb.0 }}"
+            {% if 'debtor' in request.GET %}
+              {% if request.GET.debtor == mb.0 %}
+                selected
+              {% endif %}
+            {% endif %}
+            >{{ mb.2 }}</option>
+          {% endfor %}
+        </select>
+        <select id="nid" class="form-control" style="display:none;">
+          <option value="">--Select--</option>
+          {% for mb in members%}
+            <option value="{{ mb.0 }}">{{ mb.3 }}</option>
+          {% endfor %}
+        </select>
+        <div class="border-bottom p-2">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-3">
+            <div class="w-85">
+                <h5 class="mb-0 mt-1 font-weight-medium">Contact</h5>  
+            </div>
+            <span class="fs-2 text-nowrap ms-auto time fw-normal" id="memd1">-</span> 
+          </div>
+        </div>
+        <div class="border-bottom p-2">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-3">
+            <div class="w-85">
+                <h5 class="mb-0 mt-1 font-weight-medium">Phone</h5>  
+            </div>
+            <span class="fs-2 text-nowrap ms-auto time fw-normal" id="memd17">-</span> 
+          </div>
+        </div>
+        <div class="border-bottom p-2">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-3">
+            <div class="w-85">
+                <h5 class="mb-0 mt-1 font-weight-medium">Email</h5>  
+            </div>
+            <span class="fs-2 text-nowrap ms-auto time fw-normal" id="memd20">-</span> 
+          </div>
+        </div>
+        <div class="border-bottom p-2">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-3">
+            <div class="w-85">
+                <h5 class="mb-0 mt-1 font-weight-medium">Stop Supply</h5>  
+            </div>
+            <span class="fs-2 text-nowrap ms-auto time fw-normal" id="memd6">-</span> 
+          </div>
+        </div>
+        <!--<table id="memdetail" class="d-none">
+          <tr><th>Contact</th><td id="memd1"></td></tr>
+          <tr><th>Phone</th><td id="memd17"></td></tr>
+          <tr><th>Email</th><td id="memd20"></td></tr>
+          <tr><th>Stop Supply</th><td id="memd6"></td></tr>
+        </table>-->
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-1">
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <h4 class="card-title"></h4>
+        <div class="message-box scrollable text-center" style="height: 292px;">
+          <ul style="list-style: none; margin: 0; padding: 0;">
+            <li class="list-group-item">
+              <form action="/csv/" method="post" style="text-align: center;">
+                {% csrf_token %} 
+                <input type="hidden" name="exp_debtor" id="exp_debtor" value="">
+                <input type="hidden" name="exp_trans" id="exp_trans" value="ALL">
+                <div id="mfilters"></div>
+                <button type="submit" name="expbtn" class="btn btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Export"><i style="font-size:28px;" class="me-2 mdi mdi-download"></i></button>
+              </form>
+            </li>
+            <li class="list-group-item text-center">
+              <button class="btn btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Request Copy" style="font-size: 28px;" onclick="reqcopy()"><i class="me-2 mdi mdi-content-copy"></i></a>
+            </li>
+            <li class="list-group-item">
+              <button class="btn btn-sm" onclick="overduemail()" data-bs-toggle="tooltip" data-bs-placement="top" title="Overdue Email"><i style="font-size: 28px;" class="me-2 mdi mdi-timer-sand"></i></button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-2 p-1">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Summary</h4>
+        <div class="message-box scrollable" style="height: 225px;">
+          <div id="agingsummary" class="message-widget message-scroll">
+            <div class="d-flex align-items-center border-bottom p-1">
+                <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                    <div class="w-85">
+                        <h5 class="mb-0 mt-1 font-weight-medium">Current</h5>  
+                    </div>
+                    <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary3">-</span> 
+                </div>
+              </div>
+
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">1-30 days</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary4">-</span> 
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">31-60 days</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary5">-</span> 
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">61-90 days</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary6">-</span> 
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">90 plus</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary7">-</span> 
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">Total Due</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary0">-</span> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-3 p-1">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Summary</h4>
+        <div class="message-box scrollable" style="height: 225px;">
+          <div id="agingsummaryo" class="message-widget message-scroll">
+            <div class="d-flex align-items-center border-bottom p-1">
+                <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                    <div class="w-85">
+                        <h5 class="mb-0 mt-1 font-weight-medium">Due-Current Month</h5>  
+                    </div>
+                    <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo0">-</span> 
+                </div>
+              </div>
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">Due-Next Month</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo1">-</span> 
+              </div>
+          </div>
+          <div class="d-flex align-items-center border-bottom p-1">
+            <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                <div class="w-85">
+                    <h5 class="mb-0 mt-1 font-weight-medium">Due-Following Months</h5>  
+                </div>
+                <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo2">-</span> 
+            </div>
+        </div>
+        <a href="#" class="d-flex align-items-center border-bottom p-1">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+              <div class="w-85">
+                  <h5 class="mb-0 mt-1 font-weight-medium">Total Overdue</h5>  
+              </div>
+              <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo03">-</span> 
+          </div>
+        </a>
+        <a href="#" class="d-flex align-items-center border-bottom p-1">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+              <div class="w-85">
+                  <h5 class="mb-0 mt-1 font-weight-medium">Credit Limit</h5>  
+              </div>
+              <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo04">-</span> 
+          </div>
+        </a>
+        <a href="#" class="d-flex align-items-center border-bottom p-1">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+              <div class="w-85">
+                  <h5 class="mb-0 mt-1 font-weight-medium">Credit Left</h5>  
+              </div>
+              <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummaryo05">-</span> 
+          </div>
+        </a>
+          </div>
+        </div>
+
+
+        <!--<table id="agingsummaryo" class="d-none">
+          <tr><th>Due-Current Month</th><td id="agingsummaryo0"></td></tr>
+          <tr><th>Due-Next Month</th><td id="agingsummaryo1"></td></tr>
+          <tr><th>Due-Following Months</th><td id="agingsummaryo2"></td></tr>
+          <tr><th>Total Overdue</th><td id="agingsummaryo03"></td></tr>
+          <tr><th>Credit Limit</th><td id="agingsummaryo04"></td></tr>
+          <tr><th>Credit Left</th><td id="agingsummaryo05"></td></tr>
+        </table>-->
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-3 p-1">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Summary</h4>
+        <div class="message-box scrollable" style="height: 225px;">
+          <div id="agingsummaryo" class="message-widget message-scroll">
+            <div class="d-flex align-items-center border-bottom p-1">
+                <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                    <div class="w-85">
+                        <h5 class="mb-0 mt-1 font-weight-medium">Turnover PY/TY</h5>  
+                    </div>
+                    <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary40">-</span> 
+                </div>
+              </div>
+            <div class="d-flex align-items-center border-bottom p-1">
+              <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                  <div class="w-85">
+                      <h5 class="mb-0 mt-1 font-weight-medium">Last Payment $</h5>  
+                  </div>
+                  <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary41">-</span> 
+              </div>
+          </div>
+          <div class="d-flex align-items-center border-bottom p-1">
+            <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                <div class="w-85">
+                    <h5 class="mb-0 mt-1 font-weight-medium">Last Payment Dt</h5>  
+                </div>
+                <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary42">-</span> 
+            </div>
+          </div>
+          <div class="d-flex align-items-center border-bottom p-1">
+            <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                <div class="w-85">
+                    <h5 class="mb-0 mt-1 font-weight-medium">Last Email Reminder</h5>  
+                </div>
+                <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary43">-</span> 
+            </div>
+          </div>
+          <div class="d-flex align-items-center border-bottom p-1">
+            <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+                <div class="w-85">
+                    <h5 class="mb-0 mt-1 font-weight-medium">Vault $</h5>  
+                </div>
+                <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary44">-</span> 
+            </div>
+          </div>
+        <div class="d-flex align-items-center border-bottom p-1">
+          <div class="w-85 d-md-flex align-items-center v-middle ps-1">
+              <div class="w-85">
+                  <h5 class="mb-0 mt-1 font-weight-medium"><select id="curram"><option value="">--</option></select></h5>  
+              </div>
+              <span class="fs-2 text-nowrap ms-auto time fw-normal" id="agingsummary45">-</span> 
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+      <!--
+      <div class="card-body">
+        {% if 'debtor' in request.GET %}
+        <table>
+          {% for lt in latestdetail %}
+          //<tr><th>Last Stop Supply</th><td>{{ lt.1 }}</td></tr>
+          //<tr><th>Last Payment $</th><td>{{ lt.2 }}</td></tr>
+          //<tr><th>Last Payment Dt</th><td></td></tr>
+          //<tr><th>Last Email Reminder</th><td></td></tr>
+          //<tr><th>Vault $</th><td></td></tr>
+          //<tr><th>Curr Amt $</th><td></td></tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+      </div>-->
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-2 p-3">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Transaction Status</h4>
+        <input type="radio" name="transaction_status" value="ALL" checked> Open 
+        <input type="radio" name="transaction_status" value="HIST"> History 
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Filter</h4>
+        <div id="filterdata"></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Suppliers</h4>
+        <div id="suppliersdata"></div>
+      </div>
+    </div>
+  </div>
+
+<div class="col-sm-10 p-3">
+  <!-- Responsive table -->
+  <div class="card">
+      <div class="card-body">
+          <h4 class="card-title mb-0">Transactions</h4>
+      <div class="table-responsive">
+        <table data-bs-toggle="table" data-height="250" data-mobile-responsive="true"
+        class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Document#</th>
+                <th>Doc Type</th>
+                <th>Description</th>
+                <th>Supplier Name</th>
+                <th>Doc Dt</th>
+                <th>Due Dt</th>
+                <th>Overdue Days</th>
+                <th>Ex GST</th>
+                <th>GST</th>
+                <th>Inc GST</th>
+                <th>Curr Amt</th>
+                <th>Disputed/ Voided</th>
+                <th>Posted Dt</th>
+                <th>Batch #</th>
+              </tr>
+            </thead>
+            <tbody id="transdata">
+              
+              
+            </tbody>
+          </table>
+      </div>
+      </div>
+  </div>
+</div>
+</div>
+  <!-- -------------------------------------------------------------- -->
+  <!-- End PAge Content -->
+  <!-- -------------------------------------------------------------- -->
+</div>
+{% endblock content %}
